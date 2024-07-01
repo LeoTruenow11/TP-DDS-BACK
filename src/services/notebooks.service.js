@@ -1,0 +1,165 @@
+import sequelize from "../models/database.js";
+import { Op, where } from 'sequelize'
+
+const getNotebooks = async (filter) => {
+    try {
+        const whereQuery = {};
+
+        if (filter.nombre) {
+            whereQuery.nombre = { [Op.like]: `%${filter.nombre}%` };
+        }
+
+        const resultado = await sequelize.models.Notebook.findAll({
+            where: whereQuery,
+            attributes: [
+                'IdNotebook',
+                'Nombre',
+                'Precio',
+                'Stock',
+                'FechaAlta',
+                'Activo'
+            ]
+        });
+        return resultado.map(notebook => ({
+            IdNotebook: notebook.dataValues.IdNotebook,
+            Nombre: notebook.dataValues.Nombre,
+            Precio: notebook.dataValues.Precio,
+            Stock: notebook.dataValues.Stock,
+            FechaAlta: notebook.dataValues.FechaAlta,
+            Activo: notebook.dataValues.Activo
+        }));
+    } catch (error) {
+        console.error("Error fetching notebooks:", error.message);
+        throw error;
+    }
+};
+
+const getNotebookById = async (idNotebook) => {
+    try {
+        const resultado = await sequelize.models.Notebook.findOne({
+            attributes: [
+                'IdNotebook',
+                'Nombre',
+                'Precio',
+                'Stock',
+                'FechaAlta',
+                'Activo'
+            ],
+            where: { IdNotebook: idNotebook }
+        });
+
+        if (!resultado) {
+            return null;
+        }
+
+        return resultado.dataValues;
+    } catch (error) {
+        console.error("Error fetching notebook by ID:", error.message);
+        throw error;
+    }
+};
+
+const insertarNotebook = async (newNotebook) => {
+    try {
+        const resultado = await sequelize.models.Notebook.create({
+            Nombre: newNotebook.Nombre,
+            Precio: newNotebook.Precio,
+            Stock: newNotebook.Stock,
+            FechaAlta: newNotebook.FechaAlta,
+            Activo: newNotebook.Activo
+        });
+
+        return {
+            IdNotebook: resultado.dataValues.IdNotebook,
+            Nombre: resultado.dataValues.Nombre,
+            Precio: resultado.dataValues.Precio,
+            Stock: resultado.dataValues.Stock,
+            FechaAlta: resultado.dataValues.FechaAlta,
+            Activo: resultado.dataValues.Activo
+        };
+    } catch (error) {
+        console.error("Error inserting notebook:", error.message);
+        throw error;
+    }
+};
+
+const editarNotebook = async (notebookData) => {
+    try {
+        const notebookExistente = await sequelize.models.Notebook.findOne({
+            where: { IdNotebook: notebookData.IdNotebook }
+        });
+
+        if (!notebookExistente) {
+            return null; // Notebook no encontrado
+        }
+
+        const updatedNotebook = await notebookExistente.update(
+            {
+                Nombre: notebookData.Nombre,
+                Precio: notebookData.Precio,
+                Stock: notebookData.Stock,
+                FechaAlta: notebookData.FechaAlta,
+                Activo: notebookData.Activo
+            })
+
+            return updatedNotebook.dataValues;
+            
+    } catch (error) {
+        console.error("Error editing notebook:", error.message);
+        throw error;
+    }
+};
+
+const getNotebookByName = async (nombre) => {
+    try {
+        const resultado = await sequelize.models.Notebook.findOne({
+            attributes: [
+                'IdNotebook',
+                'Nombre',
+                'Precio',
+                'Stock',
+                'FechaAlta',
+                'Activo'
+            ],
+            where: { Nombre: { [Op.like]: `%${nombre}%` } }
+        });
+
+        if (!resultado) {
+            return null;
+        }
+
+        return resultado.dataValues;
+    } catch (error) {
+        console.error("Error fetching notebook by name:", error.message);
+        throw error;
+    }
+};
+
+const eliminarNotebook = async (notebookData) => {
+    try {
+        const notebookExistente = await sequelize.models.Notebook.findOne({
+            where: { IdNotebook: notebookData.IdNotebook }
+        });
+        
+        if (!notebookExistente) {
+            return null; // Película no encontrada
+        }
+        
+        await notebookExistente.destroy();
+        return notebookData;
+    } catch (error) {
+        console.error('Error al eliminar la notebook:', error.message);
+        throw error;
+    }
+};
+
+const notebookService = {
+    getNotebooks,
+    getNotebookById,
+    insertarNotebook,
+    editarNotebook,
+    getNotebookByName,
+    eliminarNotebook
+};
+
+export default notebookService;
