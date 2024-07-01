@@ -28,11 +28,7 @@ const NotebooksAttributes ={
         },
         IdProcesador: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'Procesador',
-                key: 'IdProcesador'
-            }
+            allowNull: false
         }
     }
 

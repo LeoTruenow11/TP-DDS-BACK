@@ -10,7 +10,7 @@ const getNotebooks = async (filter) => {
             whereQuery.nombre = { [Op.like]: `%${filter.nombre}%` };
         }
 
-        const resultado = await sequelize.models.Notebook.findAll({
+        const resultado = await sequelize.models.Notebooks.findAll({
             where: whereQuery,
             attributes: [
                 'IdNotebook',
@@ -21,10 +21,6 @@ const getNotebooks = async (filter) => {
                 'Activo',
                 'IdProcesador'
             ],
-            include: [{
-                model: sequelize.models.Procesador,
-                attributes: ['Nombre']
-            }]
         });
         return resultado.map(notebook => ({
             IdNotebook: notebook.dataValues.IdNotebook,
@@ -34,7 +30,7 @@ const getNotebooks = async (filter) => {
             FechaAlta: notebook.dataValues.FechaAlta,
             Activo: notebook.dataValues.Activo,
             IdProcesador: notebook.dataValues.IdProcesador,
-            ProcesadorNombre: notebook.Procesador ? notebook.Procesador.Nombre : null
+            //ProcesadorNombre: notebook.Procesador ? notebook.Procesador.Nombre : null
         }));
     } catch (error) {
         console.error("Error fetching notebooks:", error.message);
@@ -44,7 +40,7 @@ const getNotebooks = async (filter) => {
 
 const getNotebookById = async (idNotebook) => {
     try {
-        const resultado = await sequelize.models.Notebook.findOne({
+        const resultado = await sequelize.models.Notebooks.findOne({
             attributes: [
                 'IdNotebook',
                 'Nombre',
@@ -54,20 +50,15 @@ const getNotebookById = async (idNotebook) => {
                 'Activo',
                 'IdProcesador'
             ],
-            where: { IdNotebook: idNotebook },
-            include: [{
-                model: sequelize.models.Procesador,
-                attributes: ['Nombre']
-            }]
+            where: { IdNotebook: idNotebook }
         });
 
         if (!resultado) {
             return null;
         }
 
-        return {
-            ...resultado.dataValues, 
-            ProcesadorNombre: resultado.Procesador ? resultado.Procesador.Nombre : null}
+        return resultado.dataValues
+            
     } catch (error) { 
         console.error("Error fetching notebook by ID:", error.message);
         throw error;
@@ -76,7 +67,7 @@ const getNotebookById = async (idNotebook) => {
 
 const insertarNotebook = async (newNotebook) => {
     try {
-        const resultado = await sequelize.models.Notebook.create({
+        const resultado = await sequelize.models.Notebooks.create({
             Nombre: newNotebook.Nombre,
             Precio: newNotebook.Precio,
             Stock: newNotebook.Stock,
@@ -102,7 +93,7 @@ const insertarNotebook = async (newNotebook) => {
 
 const editarNotebook = async (notebookData) => {
     try {
-        const notebookExistente = await sequelize.models.Notebook.findOne({
+        const notebookExistente = await sequelize.models.Notebooks.findOne({
             where: { IdNotebook: notebookData.IdNotebook }
         });
 
@@ -130,7 +121,7 @@ const editarNotebook = async (notebookData) => {
 
 const getNotebookByName = async (nombre) => {
     try {
-        const resultado = await sequelize.models.Notebook.findOne({
+        const resultado = await sequelize.models.Notebooks.findOne({
             attributes: [
                 'IdNotebook',
                 'Nombre',
@@ -141,20 +132,14 @@ const getNotebookByName = async (nombre) => {
                 'IdProcesador'
             ],
             where: { Nombre: { [Op.like]: `%${nombre}%` } },
-            include: [{
-                model: sequelize.models.Procesador,
-                attributes: ['Nombre']
-            }]
+            
         });
 
         if (!resultado) {
             return null;
         }
 
-        return {
-            ...resultado.dataValues,
-            ProcesadorModel: resultado.Procesador ? resultado.Procesador.Nombre : null
-        };
+        return resultado.dataValues;
     } catch (error) {
         console.error("Error fetching notebook by name:", error.message);
         throw error;
@@ -163,7 +148,7 @@ const getNotebookByName = async (nombre) => {
 
 const eliminarNotebook = async (notebookData) => {
     try {
-        const notebookExistente = await sequelize.models.Notebook.findOne({
+        const notebookExistente = await sequelize.models.Notebooks.findOne({
             where: { IdNotebook: notebookData.IdNotebook }
         });
         

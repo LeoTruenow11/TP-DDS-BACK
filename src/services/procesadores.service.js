@@ -10,7 +10,7 @@ const getProcesadores = async (filter) => {
             whereQuery.nombre = { [Op.like]: `%${filter.nombre}%` };
         }
 
-        const resultado = await sequelize.models.Procesador.findAll({
+        const resultado = await sequelize.models.Procesadores.findAll({
             where: whereQuery,
             attributes: [
                 'IdProcesador',
@@ -40,7 +40,7 @@ const getProcesadores = async (filter) => {
 // ====================GETBYID====================
 const getProcesadorById = async (idProcesador) => {
     try {
-        const resultado = await sequelize.models.Procesador.findOne({
+        const resultado = await sequelize.models.Procesadores.findOne({
             attributes: [
                 'IdProcesador',
                 'Nombre',
@@ -66,7 +66,7 @@ const getProcesadorById = async (idProcesador) => {
 // ====================POST====================
 const insertarProcesador = async (newProcesador) => {
     try {
-        const resultado = await sequelize.models.Procesador.create({
+        const resultado = await sequelize.models.Procesadores.create({
             Nombre: newProcesador.Nombre,
             Precio: newProcesador.Precio,
             Stock: newProcesador.Stock,
@@ -91,7 +91,7 @@ const insertarProcesador = async (newProcesador) => {
 const editarProcesador = async (procesadorData) => {
     try {
         // Buscar el procesador existente por su ID
-        const procesadorExistente = await sequelize.models.Procesador.findOne({
+        const procesadorExistente = await sequelize.models.Procesadores.findOne({
             where: { IdProcesador: procesadorData.IdProcesador }
         });
 
@@ -122,7 +122,7 @@ const editarProcesador = async (procesadorData) => {
 
 const getProcesadorByName = async (nombre) => {
     try {
-        const resultado = await sequelize.models.Procesador.findOne({
+        const resultado = await sequelize.models.Procesadores.findOne({
             attributes: [
                 'IdProcesador',
                 'Nombre',
@@ -150,7 +150,19 @@ const getProcesadorByName = async (nombre) => {
 const eliminarProcesador = async (procesadorData) => {
     try {
         console.log('Datos recibidos para eliminar:', procesadorData);
-        const procesadorExistente = await sequelize.models.Procesador.findOne({
+        
+        // Verificar si hay notebooks asociadas con el procesador
+        const notebooksAsociadas = await sequelize.models.Notebooks.findAll({
+            where: { IdProcesador: procesadorData.IdProcesador }
+        });
+
+        if (notebooksAsociadas.length > 0) {
+            // No permitir eliminar el procesador si hay notebooks asociadas
+            return { error: 'No se puede eliminar el procesador porque está asociado a una o más notebooks.' };
+        }
+        
+        
+        const procesadorExistente = await sequelize.models.Procesadores.findOne({
             where: { IdProcesador: procesadorData.IdProcesador }
         });
         

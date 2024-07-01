@@ -6,33 +6,33 @@ const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: './notebooks.db'
 }) 
-
+/*
+// Definición de modelos
 const Procesador = sequelize.define('Procesador', ProcesadorModel.ProcesadoresAttributes, ProcesadorModel.ProcesadoresOptions);
 const Notebook = sequelize.define('Notebook', NotebookModel.NotebooksAttributes, NotebookModel.NotebooksOptions);
 
+// Definición de asociaciones
 Notebook.belongsTo(Procesador, { foreignKey: 'IdProcesador' });
 Procesador.hasMany(Notebook, { foreignKey: 'IdProcesador' });
+*/
 
-/*
 sequelize.define(
-    'Procesador',
+    'Procesadores',
     ProcesadorModel.ProcesadoresAttributes,
     ProcesadorModel.ProcesadoresOptions
 )
 
 sequelize.define(
-    'Notebook',
+    'Notebooks',
     NotebookModel.NotebooksAttributes,
     NotebookModel.NotebooksOptions
 )
 
-sequelize.models.Notebook.belongsTo(sequelize.models.Procesador,{
+sequelize.models.Notebooks.belongsTo(sequelize.models.Procesadores,{
     foreignKey: 'IdProcesador'
 })
-sequelize.models.Procesador.hasMany(sequelize.models.Notebook,{
-    foreignKey: 'IdProcesador'
-})
-*/
+
+
 
 async function initializeDatabase() {
     try {
