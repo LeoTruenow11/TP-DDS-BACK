@@ -1,5 +1,6 @@
 import sequelize from "../models/database.js";
-import { Op, where } from 'sequelize'
+import { Op } from 'sequelize'
+import ProcesadorModel from "../models/procesadores.js";
 
 const getNotebooks = async (filter) => {
     try {
@@ -17,8 +18,13 @@ const getNotebooks = async (filter) => {
                 'Precio',
                 'Stock',
                 'FechaAlta',
-                'Activo'
-            ]
+                'Activo',
+                'IdProcesador'
+            ],
+            include: [{
+                model: sequelize.models.Procesador,
+                attributes: ['Nombre']
+            }]
         });
         return resultado.map(notebook => ({
             IdNotebook: notebook.dataValues.IdNotebook,
@@ -26,7 +32,9 @@ const getNotebooks = async (filter) => {
             Precio: notebook.dataValues.Precio,
             Stock: notebook.dataValues.Stock,
             FechaAlta: notebook.dataValues.FechaAlta,
-            Activo: notebook.dataValues.Activo
+            Activo: notebook.dataValues.Activo,
+            IdProcesador: notebook.dataValues.IdProcesador,
+            ProcesadorNombre: notebook.Procesador ? notebook.Procesador.Nombre : null
         }));
     } catch (error) {
         console.error("Error fetching notebooks:", error.message);
@@ -43,17 +51,24 @@ const getNotebookById = async (idNotebook) => {
                 'Precio',
                 'Stock',
                 'FechaAlta',
-                'Activo'
+                'Activo',
+                'IdProcesador'
             ],
-            where: { IdNotebook: idNotebook }
+            where: { IdNotebook: idNotebook },
+            include: [{
+                model: sequelize.models.Procesador,
+                attributes: ['Nombre']
+            }]
         });
 
         if (!resultado) {
             return null;
         }
 
-        return resultado.dataValues;
-    } catch (error) {
+        return {
+            ...resultado.dataValues, 
+            ProcesadorNombre: resultado.Procesador ? resultado.Procesador.Nombre : null}
+    } catch (error) { 
         console.error("Error fetching notebook by ID:", error.message);
         throw error;
     }
@@ -66,7 +81,8 @@ const insertarNotebook = async (newNotebook) => {
             Precio: newNotebook.Precio,
             Stock: newNotebook.Stock,
             FechaAlta: newNotebook.FechaAlta,
-            Activo: newNotebook.Activo
+            Activo: newNotebook.Activo, 
+            IdProcesador: newNotebook.IdProcesador
         });
 
         return {
@@ -75,7 +91,8 @@ const insertarNotebook = async (newNotebook) => {
             Precio: resultado.dataValues.Precio,
             Stock: resultado.dataValues.Stock,
             FechaAlta: resultado.dataValues.FechaAlta,
-            Activo: resultado.dataValues.Activo
+            Activo: resultado.dataValues.Activo,
+            IdProcesador: resultado.dataValues.IdProcesador
         };
     } catch (error) {
         console.error("Error inserting notebook:", error.message);
@@ -99,7 +116,8 @@ const editarNotebook = async (notebookData) => {
                 Precio: notebookData.Precio,
                 Stock: notebookData.Stock,
                 FechaAlta: notebookData.FechaAlta,
-                Activo: notebookData.Activo
+                Activo: notebookData.Activo,
+                IdProcesador: notebookData.IdProcesador
             })
 
             return updatedNotebook.dataValues;
@@ -119,16 +137,24 @@ const getNotebookByName = async (nombre) => {
                 'Precio',
                 'Stock',
                 'FechaAlta',
-                'Activo'
+                'Activo',
+                'IdProcesador'
             ],
-            where: { Nombre: { [Op.like]: `%${nombre}%` } }
+            where: { Nombre: { [Op.like]: `%${nombre}%` } },
+            include: [{
+                model: sequelize.models.Procesador,
+                attributes: ['Nombre']
+            }]
         });
 
         if (!resultado) {
             return null;
         }
 
-        return resultado.dataValues;
+        return {
+            ...resultado.dataValues,
+            ProcesadorModel: resultado.Procesador ? resultado.Procesador.Nombre : null
+        };
     } catch (error) {
         console.error("Error fetching notebook by name:", error.message);
         throw error;

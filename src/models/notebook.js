@@ -25,6 +25,14 @@ const NotebooksAttributes ={
         Activo: {
             type: DataTypes.BOOLEAN,
             allowNull: false
+        },
+        IdProcesador: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'Procesador',
+                key: 'IdProcesador'
+            }
         }
     }
 

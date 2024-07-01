@@ -7,6 +7,13 @@ const sequelize = new Sequelize({
     storage: './notebooks.db'
 }) 
 
+const Procesador = sequelize.define('Procesador', ProcesadorModel.ProcesadoresAttributes, ProcesadorModel.ProcesadoresOptions);
+const Notebook = sequelize.define('Notebook', NotebookModel.NotebooksAttributes, NotebookModel.NotebooksOptions);
+
+Notebook.belongsTo(Procesador, { foreignKey: 'IdProcesador' });
+Procesador.hasMany(Notebook, { foreignKey: 'IdProcesador' });
+
+/*
 sequelize.define(
     'Procesador',
     ProcesadorModel.ProcesadoresAttributes,
@@ -19,6 +26,13 @@ sequelize.define(
     NotebookModel.NotebooksOptions
 )
 
+sequelize.models.Notebook.belongsTo(sequelize.models.Procesador,{
+    foreignKey: 'IdProcesador'
+})
+sequelize.models.Procesador.hasMany(sequelize.models.Notebook,{
+    foreignKey: 'IdProcesador'
+})
+*/
 
 async function initializeDatabase() {
     try {
