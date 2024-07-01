@@ -1,6 +1,5 @@
 import sequelize from "../models/database.js";
 import { Op } from 'sequelize'
-import ProcesadorModel from "../models/procesadores.js";
 
 const getNotebooks = async (filter) => {
     try {
@@ -20,8 +19,17 @@ const getNotebooks = async (filter) => {
                 'FechaAlta',
                 'Activo',
                 'IdProcesador'
+            ],  
+            include: [{
+                model: sequelize.models.Procesadores, // El modelo relacionado
+                attributes: ['Nombre'], // Atributos que quieres obtener del modelo relacionado
+                as: 'Procesadore'
+            }],         
+            order: [
+                ['Nombre', 'ASC'] // Ordenar alfabéticamente por Nombre
             ],
         });
+        console.log(resultado)
         return resultado.map(notebook => ({
             IdNotebook: notebook.dataValues.IdNotebook,
             Nombre: notebook.dataValues.Nombre,
@@ -29,8 +37,8 @@ const getNotebooks = async (filter) => {
             Stock: notebook.dataValues.Stock,
             FechaAlta: notebook.dataValues.FechaAlta,
             Activo: notebook.dataValues.Activo,
-            IdProcesador: notebook.dataValues.IdProcesador,
-            //ProcesadorNombre: notebook.Procesador ? notebook.Procesador.Nombre : null
+            IdProcesador: notebook.dataValues.IdProcesador,  
+            ProcesadorNombre: notebook.dataValues.Procesadore ? notebook.dataValues.Procesadore.Nombre : null // Acceso a los datos del modelo relacionado         
         }));
     } catch (error) {
         console.error("Error fetching notebooks:", error.message);
@@ -50,7 +58,8 @@ const getNotebookById = async (idNotebook) => {
                 'Activo',
                 'IdProcesador'
             ],
-            where: { IdNotebook: idNotebook }
+            where: { IdNotebook: idNotebook },
+            
         });
 
         if (!resultado) {
